@@ -64,7 +64,7 @@ export async function handleMention(message: Message) {
         .trim();
     if (!prompt) return;
     const reply = await message.reply({
-        content: "<a:GrokLoad:1364936044579127359>",
+        content: "<a:GrokLoad:1364952552973664257>",
         allowedMentions: { repliedUser: false },
     });
     const history = await createMessageHistoryJSON(message);

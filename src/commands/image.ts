@@ -48,7 +48,7 @@ export default {
 
         const timer = Date.now();
 
-        await interaction.reply("<a:GrokLoad:1364936044579127359>");
+        await interaction.reply("<a:GrokLoad:1364952552973664257>");
         const { images } = await generateImage({
             model: xai.image("grok-2-image", {
                 maxImagesPerCall: 9,
