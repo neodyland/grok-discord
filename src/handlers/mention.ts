@@ -5,10 +5,10 @@ import { generateText } from "ai";
 export async function createMessageHistoryJSON(
     message: Message,
 ): Promise<object> {
-    const MAX_MESSAGES = 50;
+    const MAX_MESSAGES = 50; // Maximum number of messages to fetch including replies
+    const MAX_FETCHES = 25; // Maximum number of messages to fetch excluding replies
     const history: { content: string; author: string }[] = [];
 
-    // Helper function to follow the reply chain
     async function followReplyChain(msg: Message) {
         while (msg.reference?.messageId) {
             const repliedMessage = await msg.channel.messages
@@ -27,15 +27,13 @@ export async function createMessageHistoryJSON(
         }
     }
 
-    // Follow the reply chain for the initial message
     await followReplyChain(message);
 
-    // Fetch messages until we have 10 valid human messages or hit the limit
     let lastMessageId = message.id;
-    while (history.length < 10) {
+    while (history.length < MAX_FETCHES) {
         const messages = await message.channel.messages.fetch({
             before: lastMessageId,
-            limit: 10,
+            limit: MAX_FETCHES,
         });
         if (messages.size === 0) break;
 
@@ -49,12 +47,10 @@ export async function createMessageHistoryJSON(
                 author: msg.author.username,
             });
 
-            // Follow the reply chain for each message
             await followReplyChain(msg);
         }
     }
 
-    // Limit the history to the maximum allowed messages
     return { messages: history.slice(0, MAX_MESSAGES) };
 }
 
