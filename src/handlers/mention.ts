@@ -67,7 +67,7 @@ export async function handleMention(message: Message) {
 
     const { text } = await generateText({
         model: xai("grok-3-mini"),
-        prompt: `You have been asked a question within a Discord server. With this context in mind, answer the question as if you were a human. Answer using the language the prompt was written in. Do not show your own character, just reply to the prompt. Users may also be asking you a general question unrelated to the chat, in that case you may ignore the context provided. Here is the context: ${JSON.stringify(history)}. Here is the question: ${prompt}`,
+        prompt: `You have been asked a question within a Discord server. With this context in mind, answer the question as if you were a human. Answer using the language the prompt was written in. Do not show your own character, just reply to the prompt. Users may also be asking you a general question unrelated to the chat, in that case you may ignore the context provided. However, whenever possible take the chat context into consideration. Here is the context: ${JSON.stringify(history)}. Here is the question: ${prompt}`,
     });
 
     await reply.edit({ content: text });
