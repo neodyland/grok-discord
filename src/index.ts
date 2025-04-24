@@ -12,23 +12,6 @@ const client = new Client({
     ],
 });
 
-export async function dmUser(id: string, provider: string, message: string) {
-    const user = client.users.cache.get(id);
-    if (!user) return;
-
-    const embed = new EmbedBuilder()
-        .setTitle(`System Message from ${provider}`)
-        .setDescription(message)
-        .setColor("#FF7700")
-        .setTimestamp();
-
-    try {
-        await user.send({ embeds: [embed] });
-    } catch (e) {
-        return e;
-    }
-}
-
 client.on("ready", () => {
     console.log(`Logged in as ${client.user?.tag}!`);
     setPresence(client);
