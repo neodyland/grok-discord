@@ -1,8 +1,9 @@
 import { setPresence } from "./presence";
 import { handleCommand } from "./handlers/command";
-import { Client, GatewayIntentBits, EmbedBuilder } from "discord.js";
+import { Client, GatewayIntentBits } from "discord.js";
 
 import { handleMention } from "./handlers/mention.ts";
+import { handleReply } from "./handlers/reply.ts";
 
 const client = new Client({
     intents: [
@@ -35,6 +36,14 @@ client.on("messageCreate", async (message) => {
     if (message.author.bot) return;
     if (message.content.startsWith(`<@${client.user?.id}>`)) {
         await handleMention(message);
+    }
+    if (message.reference?.messageId) {
+        const referencedMessage = await message.channel.messages
+            .fetch(message.reference.messageId)
+            .catch(() => null);
+        if (referencedMessage && referencedMessage.author.id === client.user?.id) {
+            await handleReply(message);
+        }
     }
 });
 

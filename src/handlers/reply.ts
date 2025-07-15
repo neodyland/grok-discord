@@ -5,8 +5,6 @@ import { generateText } from "ai";
 async function createMessageHistory(
     message: Message,
 ): Promise<Message[]> {
-    const MAX_MESSAGES = 50; // Maximum number of messages to fetch including replies
-    const MAX_FETCHES = 25; // Maximum number of messages to fetch excluding replies
     const history: Message[] = [];
 
     async function followReplyChain(msg: Message) {
@@ -16,39 +14,17 @@ async function createMessageHistory(
                 .catch(() => null);
             if (!repliedMessage) break;
 
-            if (!repliedMessage.author.bot) {
-                history.unshift(repliedMessage);
-            }
-
+            history.unshift(repliedMessage);
             msg = repliedMessage;
         }
     }
 
     await followReplyChain(message);
 
-    let lastMessageId = message.id;
-    while (history.length < MAX_FETCHES) {
-        const messages = await message.channel.messages.fetch({
-            before: lastMessageId,
-            limit: MAX_FETCHES,
-        });
-        if (messages.size === 0) break;
-
-        for (const msg of messages.values()) {
-            lastMessageId = msg.id;
-            if (history.length >= MAX_MESSAGES) break;
-            if (msg.author.bot) continue;
-
-            history.push(msg);
-
-            await followReplyChain(msg);
-        }
-    }
-
     return history;
 }
 
-export async function handleMention(message: Message) {
+export async function handleReply(message: Message) {
     const prompt = message.content
         .replace(`<@${process.env.BOT_ID}>`, "")
         .trim();
