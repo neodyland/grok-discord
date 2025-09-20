@@ -41,7 +41,10 @@ client.on("messageCreate", async (message) => {
         const referencedMessage = await message.channel.messages
             .fetch(message.reference.messageId)
             .catch(() => null);
-        if (referencedMessage && referencedMessage.author.id === client.user?.id) {
+        if (
+            referencedMessage &&
+            referencedMessage.author.id === client.user?.id
+        ) {
             await handleReply(message);
         }
     }
