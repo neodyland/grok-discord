@@ -14,8 +14,8 @@
         "typescript": "^5"
     },
     "dependencies": {
-        "@ai-sdk/xai": "^1.2.15",
-        "ai": "^4.3.9",
+        "@ai-sdk/xai": "^2.0.20",
+        "ai": "^5.0.47",
         "discord.js": "^14.18.0"
     }
 }
