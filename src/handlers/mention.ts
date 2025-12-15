@@ -1,6 +1,6 @@
-import type { Message } from "discord.js";
+import { type Message, AttachmentBuilder } from "discord.js";
 import { xai } from "@ai-sdk/xai";
-import { generateText, ModelMessage } from "ai";
+import { generateText, type ModelMessage } from "ai";
 
 async function createMessageHistory(message: Message): Promise<Message[]> {
     const MAX_MESSAGES = 50; // Maximum number of messages to fetch including replies
@@ -76,5 +76,12 @@ export async function handleMention(message: Message) {
         ] as ModelMessage[],
     });
 
-    await reply.edit({ content: text });
+    if (text.length > 2000) {
+        const attachment = new AttachmentBuilder(Buffer.from(text, "utf-8"), {
+            name: "response.txt",
+        });
+        await reply.edit({ content: "", files: [attachment] });
+    } else {
+        await reply.edit({ content: text });
+    }
 }
