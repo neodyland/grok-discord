@@ -1,9 +1,12 @@
-import { type Message, AttachmentBuilder } from "discord.js";
-import { generateText, type ModelMessage, gateway } from "ai";
+import type { Message } from "discord.js";
+import {
+    LOADING_EMOJI,
+    MENTION_MAX_FETCHES,
+    MENTION_MAX_MESSAGES,
+} from "../constant";
+import { streamingReponse } from "./aistream";
 
 async function createMessageHistory(message: Message): Promise<Message[]> {
-    const MAX_MESSAGES = 50; // Maximum number of messages to fetch including replies
-    const MAX_FETCHES = 25; // Maximum number of messages to fetch excluding replies
     const history: Message[] = [];
 
     async function followReplyChain(msg: Message) {
@@ -24,16 +27,16 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
     await followReplyChain(message);
 
     let lastMessageId = message.id;
-    while (history.length < MAX_FETCHES) {
+    while (history.length < MENTION_MAX_FETCHES) {
         const messages = await message.channel.messages.fetch({
             before: lastMessageId,
-            limit: MAX_FETCHES,
+            limit: MENTION_MAX_FETCHES,
         });
         if (messages.size === 0) break;
 
         for (const msg of messages.values()) {
             lastMessageId = msg.id;
-            if (history.length >= MAX_MESSAGES) break;
+            if (history.length >= MENTION_MAX_MESSAGES) break;
             if (msg.author.bot) continue;
 
             history.push(msg);
@@ -46,44 +49,24 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
 }
 
 export async function handleMention(message: Message) {
-    const prompt = message.content
-        .replace(`<@${process.env.BOT_ID}>`, "")
-        .trim();
+    const prompt = message.cleanContent.trim();
     if (!prompt) return;
     const reply = await message.reply({
-        content: process.env.LOADING_EMOJI,
+        content: LOADING_EMOJI,
         allowedMentions: { repliedUser: false },
     });
     const history = await createMessageHistory(message);
-
-    const { text } = await generateText({
-        model: "xai/grok-4.1-fast-reasoning",
-        system: 'You have been asked a question within a Discord server. With this context in mind, answer the question as if you were a human. Answer using the language the prompt was written in. Do not show your own character, just reply to the prompt. Users may also be asking you a general question unrelated to the chat, in that case you may ignore the context provided. However, whenever possible take the chat context into consideration. Users may also ask questions such as "factcheck" ans "is this true" and if that hapens, it is most likely that you have been tasked to evaluate a stetement made by a user in the chat. Find the statement, and see if it is true or not, giving reasons why. Use the Perplexity Search tool to search for up-to-date information when needed.',
-        messages: [
-            ...history.map((message) => ({
-                role:
-                    message.author.id === process.env.BOT_ID
-                        ? "assistant"
-                        : "user",
-                content: message.content,
-                name: message.author,
-            })),
-            {
-                role: "user",
-                content: prompt,
-            },
-        ] as ModelMessage[],
-        tools: {
-            perplexitySearch: gateway.tools.perplexitySearch(),
-        },
-    });
-
-    if (text.length > 2000) {
-        const attachment = new AttachmentBuilder(Buffer.from(text, "utf-8"), {
-            name: "response.txt",
-        });
-        await reply.edit({ content: "", files: [attachment] });
-    } else {
-        await reply.edit({ content: text });
-    }
+    await streamingReponse(
+        reply,
+        `You have been asked a question within a Discord server. With this context in mind, answer the question as if you were a human.
+Answer using the language the prompt was written in.
+Do not show your own character, just reply to the prompt.
+Users may also be asking you a general question unrelated to the chat, in that case you may ignore the context provided.
+However, whenever possible take the chat context into consideration.
+Users may also ask questions such as "factcheck" ans "is this true" and if that happens, it is most likely that you have been tasked to evaluate a stetement made by a user in the chat.
+Find the statement, and see if it is true or not, giving reasons why.
+Use the Search tool to search for up-to-date information when needed.`,
+        prompt,
+        history,
+    );
 }

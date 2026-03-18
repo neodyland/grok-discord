@@ -4,6 +4,7 @@ import { Client, GatewayIntentBits } from "discord.js";
 
 import { handleMention } from "./handlers/mention.ts";
 import { handleReply } from "./handlers/reply.ts";
+import { BOT_TOKEN } from "./constant.ts";
 
 const client = new Client({
     intents: [
@@ -50,6 +51,4 @@ client.on("messageCreate", async (message) => {
     }
 });
 
-client.on("guildCreate", async (guild) => {});
-
-client.login(process.env.BOT_TOKEN);
+client.login(BOT_TOKEN);

@@ -1,7 +1,8 @@
 import { REST, Routes } from "discord.js";
 import { commands } from "./commands";
+import { BOT_ID, BOT_TOKEN } from "./constant";
 
-const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN || "");
+const rest = new REST({ version: "10" }).setToken(BOT_TOKEN);
 
 export function deployCommands() {
     (async () => {
@@ -28,10 +29,9 @@ export function deployCommands() {
 
             console.log(`Registering all commands`);
 
-            await rest.put(
-                Routes.applicationCommands(process.env.BOT_ID || ""),
-                { body: commandDataArray },
-            );
+            await rest.put(Routes.applicationCommands(BOT_ID), {
+                body: commandDataArray,
+            });
             console.log(
                 `Successfully reloaded ${commandDataArray.length} application (/) commands.`,
             );
