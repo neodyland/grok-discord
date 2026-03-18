@@ -1,0 +1,31 @@
+<svg viewBox="0 0 24 24" width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="24" height="24" fill="black"/>
+
+  <path fill="white" d="
+    M 13.7 2.15
+    C 9.2 1.65 5.2 4.15 3.5 8.2
+    C 2.15 11.45 2.55 15.2 4.55 18.05
+    L 6.15 16.95
+    C 4.55 14.55 4.25 11.45 5.35 8.75
+    C 6.7 5.45 9.95 3.35 13.6 3.8
+    Z
+  "/>
+
+  <path fill="white" d="
+    M 10.3 21.85
+    C 14.8 22.35 18.8 19.85 20.5 15.8
+    C 21.85 12.55 21.45 8.8 19.45 5.95
+    L 17.85 7.05
+    C 19.45 9.45 19.75 12.55 18.65 15.25
+    C 17.3 18.55 14.05 20.65 10.4 20.2
+    Z
+  "/>
+
+  <g transform="translate(12 12) rotate(-45)">
+    <path fill="white" d="M 0 -4.2 L 0.95 0 L 0 4.2 L -0.95 0 Z"/>
+    <circle cx="0" cy="0" r="0.55" fill="black"/>
+  </g>
+
+  <circle cx="18.9" cy="5.1" r="1.7" fill="white"/>
+  <circle cx="5.1" cy="18.9" r="1.7" fill="white"/>
+</svg>
