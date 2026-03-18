@@ -2,5 +2,5 @@ FROM oven/bun:latest
 WORKDIR /work
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production
-COPY src ./
+COPY src ./src
 CMD ["bun", "start"]
