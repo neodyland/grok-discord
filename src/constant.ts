@@ -60,6 +60,14 @@ const REPLY_MAX_FETCHES = getEnvNumberWithLimits(
     100,
 );
 
+const OWNERS = process.env.OWNERS?.split(",").map((id) => id.trim()) || [];
+
+if (OWNERS.length === 0) {
+    console.warn(
+        "No OWNERS specified in environment variables. The bot will not have any owners.",
+    );
+}
+
 export {
     LOADING_EMOJI,
     BOT_TOKEN,
@@ -67,4 +75,5 @@ export {
     MENTION_MAX_FETCHES,
     MENTION_MAX_MESSAGES,
     REPLY_MAX_FETCHES,
+    OWNERS,
 };

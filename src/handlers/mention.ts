@@ -66,14 +66,13 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
 }
 
 export async function handleMention(message: Message) {
-    const prompt = message.cleanContent.trim();
-    if (!prompt) return;
+    if (!message.cleanContent.trim() && message.attachments.size === 0) return;
     const reply = await message.reply({
         content: `${LOADING_EMOJI}Fetching context...`,
     });
     const history = await createMessageHistory(message);
     await reply.edit({
-        content: `${LOADING_EMOJI}Generating response with ${history.length} messages in context...`,
+        content: `${LOADING_EMOJI}Generating response with ${history.length + 1} messages in context...`,
     });
     await streamingReponse(
         reply,
@@ -85,7 +84,7 @@ However, whenever possible take the chat context into consideration.
 Users may also ask questions such as "factcheck" ans "is this true" and if that happens, it is most likely that you have been tasked to evaluate a stetement made by a user in the chat.
 Find the statement, and see if it is true or not, giving reasons why.
 Use the Search tool to search for up-to-date information when needed.`,
-        prompt,
+        message,
         history,
     );
 }
