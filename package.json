@@ -10,10 +10,8 @@
     },
     "devDependencies": {
         "@biomejs/biome": "^2.4.7",
-        "@types/bun": "latest"
-    },
-    "peerDependencies": {
-        "typescript": "^5.8.3"
+        "@types/bun": "latest",
+        "typescript": "^5.9.3"
     },
     "dependencies": {
         "@ai-sdk/openai": "^3.0.41",
