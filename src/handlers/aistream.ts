@@ -17,6 +17,7 @@ const openaiOptions: OpenAILanguageModelResponsesOptions = {
 };
 
 function removeLast(text: string, phrase: string) {
+    if (!text.includes(phrase)) return text;
     return text.split(phrase).slice(0, -1).join(phrase);
 }
 
