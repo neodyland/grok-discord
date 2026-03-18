@@ -14,7 +14,7 @@ const client = new Client({
     ],
 });
 
-client.on("ready", () => {
+client.once("clientReady", () => {
     console.log(`Logged in as ${client.user?.tag}!`);
     setPresence(client);
 });
