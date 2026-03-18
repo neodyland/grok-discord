@@ -1,6 +1,5 @@
 import { REST, Routes } from "discord.js";
-import fs from "node:fs";
-import path from "node:path";
+import { commands } from "./commands";
 
 const rest = new REST({ version: "10" }).setToken(process.env.BOT_TOKEN || "");
 
@@ -9,22 +8,9 @@ export function deployCommands() {
         try {
             console.log("Started refreshing application (/) commands.");
 
-            const commandFiles = fs
-                .readdirSync("./src/commands")
-                .filter((file) => file.endsWith(".ts"));
-
-            const commands = await Promise.all(
-                commandFiles.map(async (file) => {
-                    const command = await import(
-                        path.resolve(`./src/commands/${file}`)
-                    );
-                    return command.default;
-                }),
-            );
-
             const commandDataArray = [];
 
-            for (const command of commands) {
+            for (const [_, command] of Object.entries(commands)) {
                 if (command.slashCommand.enabled) {
                     console.log(
                         `Preparing ${command.name} command for registration`,

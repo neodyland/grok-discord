@@ -1,12 +1,10 @@
 import type { CommandInteraction } from "discord.js";
+import { commands } from "../commands";
 
 export async function handleCommand(interaction: CommandInteraction) {
     try {
-        const commandModule = await import(
-            `../commands/${interaction.commandName}.ts`
-        );
-        const command = commandModule.default;
-        if (!command.slashCommand.enabled)
+        const command = commands[interaction.commandName];
+        if (!command || !command.slashCommand.enabled)
             return interaction.reply("This command is not enabled!");
         if (command.slashCommand.enabled) command.interactionRun(interaction);
     } catch (error) {
