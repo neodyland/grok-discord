@@ -120,7 +120,9 @@ export async function streamingReponse(
     let webSearchTriggered = 0;
     let allowedStepsLeft = 10;
     const messages: ModelMessage[] = [];
-    for (const entry of history) {
+    for (const entry of history.toSorted(
+        (a, b) => a.createdTimestamp - b.createdTimestamp,
+    )) {
         if (entry.cleanContent.trim().startsWith("!")) {
             continue;
         }
