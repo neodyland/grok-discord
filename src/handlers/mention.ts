@@ -75,7 +75,7 @@ export async function handleMention(message: Message) {
         ] as ModelMessage[],
         tools: {
             perplexitySearch: gateway.tools.perplexitySearch(),
-        }
+        },
     });
 
     if (text.length > 2000) {

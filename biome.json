@@ -1,20 +1,18 @@
 {
-    "$schema": "https://biomejs.dev/schemas/1.5.1/schema.json",
-    "organizeImports": {
-        "enabled": true
-    },
+    "$schema": "https://biomejs.dev/schemas/2.4.7/schema.json",
+    "assist": { "actions": { "source": { "organizeImports": "on" } } },
     "linter": {
         "enabled": true,
         "rules": {
             "recommended": true
         },
-        "ignore": [".prisma/"]
+        "includes": ["**", "!**/.prisma/"]
     },
     "formatter": {
         "enabled": true,
         "indentWidth": 4,
         "indentStyle": "space",
-        "ignore": [".prisma/"]
+        "includes": ["**", "!**/.prisma/"]
     },
     "javascript": {
         "formatter": {

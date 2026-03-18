@@ -1,5 +1,5 @@
 import { type Message, AttachmentBuilder } from "discord.js";
-import {gateway, generateText, type ModelMessage} from "ai";
+import { gateway, generateText, type ModelMessage } from "ai";
 
 async function createMessageHistory(message: Message): Promise<Message[]> {
     const history: Message[] = [];
@@ -51,7 +51,7 @@ export async function handleReply(message: Message) {
         ] as ModelMessage[],
         tools: {
             perplexitySearch: gateway.tools.perplexitySearch(),
-        }
+        },
     });
 
     if (text.length > 2000) {
