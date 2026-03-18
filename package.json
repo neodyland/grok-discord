@@ -7,15 +7,15 @@
         "format": "biome format --write ."
     },
     "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
+        "@biomejs/biome": "^2.4.7",
         "@types/bun": "latest"
     },
     "peerDependencies": {
-        "typescript": "^5"
+        "typescript": "^5.8.3"
     },
     "dependencies": {
-        "ai": "^6.0.49",
-        "discord.js": "^14.18.0",
-        "zod": "^4.1.9"
+        "ai": "^6.0.116",
+        "discord.js": "^14.25.1",
+        "zod": "^4.3.6"
     }
 }
