@@ -1,13 +1,29 @@
-import type { Message } from "discord.js";
+import { SnowflakeUtil, type Message } from "discord.js";
 import { LOADING_EMOJI, REPLY_MAX_FETCHES } from "../constant";
 import { streamingReponse } from "./aistream";
 
+export function isOlderThanTimestamp(
+    snowflakeId: string,
+    timestamp: number,
+): boolean {
+    return SnowflakeUtil.deconstruct(snowflakeId).timestamp < timestamp;
+}
+
 async function createMessageHistory(message: Message): Promise<Message[]> {
     const history: Message[] = [];
+    const oldestAllowedTimestamp = Date.now() - 2 * 24 * 60 * 60 * 1000;
 
     async function followReplyChain(msg: Message) {
         let followCount = REPLY_MAX_FETCHES;
         while (msg.reference?.messageId) {
+            if (
+                isOlderThanTimestamp(
+                    msg.reference.messageId,
+                    oldestAllowedTimestamp,
+                )
+            ) {
+                break;
+            }
             followCount--;
             if (followCount <= 0) break;
             const repliedMessage = await msg.channel.messages
@@ -29,11 +45,12 @@ export async function handleReply(message: Message) {
     const prompt = message.cleanContent.trim();
     if (!prompt) return;
     const reply = await message.reply({
-        content: LOADING_EMOJI,
-        allowedMentions: { repliedUser: false },
+        content: `${LOADING_EMOJI}Fetching context...`,
     });
     const history = await createMessageHistory(message);
-
+    await reply.edit({
+        content: `${LOADING_EMOJI}Generating response with ${history.length} messages in context...`,
+    });
     await streamingReponse(
         reply,
         `You have been asked a question within a Discord server.

@@ -12,6 +12,7 @@ const client = new Client({
         GatewayIntentBits.DirectMessages,
         GatewayIntentBits.GuildMessages,
     ],
+    allowedMentions: { repliedUser: false, parse: [], users: [], roles: [] },
 });
 
 client.once("clientReady", () => {

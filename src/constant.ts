@@ -43,19 +43,19 @@ function getEnvNumberWithLimits(
 
 const MENTION_MAX_FETCHES = getEnvNumberWithLimits(
     "MENTION_MAX_FETCHES",
-    15,
+    7,
     1,
     100,
 );
 const MENTION_MAX_MESSAGES = getEnvNumberWithLimits(
     "MENTION_MAX_MESSAGES",
-    30,
+    15,
     1,
     100,
 );
 const REPLY_MAX_FETCHES = getEnvNumberWithLimits(
     "REPLY_MAX_FETCHES",
-    30,
+    15,
     1,
     100,
 );

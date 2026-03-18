@@ -5,12 +5,22 @@ import {
     MENTION_MAX_MESSAGES,
 } from "../constant";
 import { streamingReponse } from "./aistream";
+import { isOlderThanTimestamp } from "./reply";
 
 async function createMessageHistory(message: Message): Promise<Message[]> {
     const history: Message[] = [];
+    const oldestAllowedTimestamp = Date.now() - 2 * 24 * 60 * 60 * 1000;
 
     async function followReplyChain(msg: Message) {
         while (msg.reference?.messageId) {
+            if (
+                isOlderThanTimestamp(
+                    msg.reference.messageId,
+                    oldestAllowedTimestamp,
+                )
+            ) {
+                break;
+            }
             const repliedMessage = await msg.channel.messages
                 .fetch(msg.reference.messageId)
                 .catch(() => null);
@@ -33,8 +43,14 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
             limit: MENTION_MAX_FETCHES,
         });
         if (messages.size === 0) break;
+        let isAllOlder = true;
 
         for (const msg of messages.values()) {
+            if (isOlderThanTimestamp(msg.id, oldestAllowedTimestamp)) {
+                continue;
+            } else {
+                isAllOlder = false;
+            }
             lastMessageId = msg.id;
             if (history.length >= MENTION_MAX_MESSAGES) break;
             if (msg.author.bot) continue;
@@ -43,6 +59,7 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
 
             await followReplyChain(msg);
         }
+        if (isAllOlder) break;
     }
 
     return history;
@@ -52,10 +69,12 @@ export async function handleMention(message: Message) {
     const prompt = message.cleanContent.trim();
     if (!prompt) return;
     const reply = await message.reply({
-        content: LOADING_EMOJI,
-        allowedMentions: { repliedUser: false },
+        content: `${LOADING_EMOJI}Fetching context...`,
     });
     const history = await createMessageHistory(message);
+    await reply.edit({
+        content: `${LOADING_EMOJI}Generating response with ${history.length} messages in context...`,
+    });
     await streamingReponse(
         reply,
         `You have been asked a question within a Discord server. With this context in mind, answer the question as if you were a human.
