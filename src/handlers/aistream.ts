@@ -119,7 +119,7 @@ export async function streamingReponse(
         }(${promptMessage.author.id})'s request`,
     );
     let webSearchTriggered = 0;
-    let allowedStepsLeft = 10;
+    let allowedStepsLeft = 20;
     const messages: ModelMessage[] = [];
     for (const entry of history.toSorted(
         (a, b) => a.createdTimestamp - b.createdTimestamp,
