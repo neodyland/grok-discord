@@ -14,6 +14,7 @@ import {
 const openaiOptions: OpenAILanguageModelResponsesOptions = {
     reasoningSummary: "auto",
     reasoningEffort: "low",
+    maxToolCalls: 10,
 };
 
 function removeLast(text: string, phrase: string) {
