@@ -143,8 +143,13 @@ export async function streamingReponse(
         },
         onFinish: async ({ text, sources, totalUsage }) => {
             const sourceTexts = [];
+            const uniqueUrls = new Set<string>();
             for (const source of sources) {
-                if (source.sourceType === "url") {
+                if (
+                    source.sourceType === "url" &&
+                    !uniqueUrls.has(source.url)
+                ) {
+                    uniqueUrls.add(source.url);
                     sourceTexts.push(
                         `[${source.title ?? source.url}](${source.url})`,
                     );
