@@ -6,6 +6,7 @@ import {
 } from "../constant";
 import { streamingReponse } from "./aistream";
 import { isOlderThanTimestamp } from "./reply";
+import { checkExecute } from "./ratelimits";
 
 async function createMessageHistory(message: Message): Promise<Message[]> {
     const history: Message[] = [];
@@ -67,12 +68,18 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
 
 export async function handleMention(message: Message) {
     if (!message.cleanContent.trim() && message.attachments.size === 0) return;
+    if (!checkExecute(message.author.id, message.guildId ?? "dm")) {
+        await message.reply(
+            "You are being rate limited due to too many requests. Please try again later.",
+        );
+        return;
+    }
     const reply = await message.reply({
         content: `${LOADING_EMOJI}Fetching context...`,
     });
     const history = await createMessageHistory(message);
     await reply.edit({
-        content: `${LOADING_EMOJI}Generating response with ${history.length + 1} messages in context...`,
+        content: `${LOADING_EMOJI}In queue to generate response with ${history.length + 1} messages in context...`,
     });
     await streamingReponse(
         reply,

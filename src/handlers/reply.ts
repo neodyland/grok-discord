@@ -1,6 +1,7 @@
 import { SnowflakeUtil, type Message } from "discord.js";
 import { LOADING_EMOJI, REPLY_MAX_FETCHES } from "../constant";
 import { streamingReponse } from "./aistream";
+import { checkExecute } from "./ratelimits";
 
 export function isOlderThanTimestamp(
     snowflakeId: string,
@@ -43,12 +44,18 @@ async function createMessageHistory(message: Message): Promise<Message[]> {
 
 export async function handleReply(message: Message) {
     if (!message.cleanContent.trim() && message.attachments.size === 0) return;
+    if (!checkExecute(message.author.id, message.guildId ?? "dm")) {
+        await message.reply(
+            "You are being rate limited due to too many requests. Please try again later.",
+        );
+        return;
+    }
     const reply = await message.reply({
         content: `${LOADING_EMOJI}Fetching context...`,
     });
     const history = await createMessageHistory(message);
     await reply.edit({
-        content: `${LOADING_EMOJI}Generating response with ${history.length + 1} messages in context...`,
+        content: `${LOADING_EMOJI}In queue to generate response with ${history.length + 1} messages in context...`,
     });
     await streamingReponse(
         reply,
