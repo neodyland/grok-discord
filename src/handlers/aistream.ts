@@ -17,6 +17,13 @@ const openaiOptions: OpenAILanguageModelResponsesOptions = {
     reasoningEffort: "medium",
     maxToolCalls: 7,
 };
+const openaiModel = "openai/gpt-5.4-mini";
+const openaiInstantOptions: OpenAILanguageModelResponsesOptions = {
+    reasoningSummary: "auto",
+    reasoningEffort: "none",
+    maxToolCalls: 3,
+};
+const openaiInstantModel = "openai/gpt-5.4-nano";
 
 const globalLock = new AsyncLock();
 
@@ -111,6 +118,48 @@ function messageToModelMessage(message: Message): ModelMessage {
     }
 }
 
+const INSTANT_TRIGGER = "!fast";
+
+function replacePromptMessage(message: Message, content: string) {
+    content = content
+        .replaceAll(INSTANT_TRIGGER, "")
+        .replaceAll(`<@${BOT_ID}>`, "");
+    const guildMe = message.guild?.members.me?.displayName;
+    if (guildMe) content = content.replaceAll(`@${guildMe}`, "");
+    return content.trim();
+}
+
+function promptToModelMessageAndMode(message: Message): {
+    message: ModelMessage;
+    mode: "instant" | "normal";
+} {
+    const modelMessage = messageToModelMessage(message);
+    const mode = message.cleanContent.includes(INSTANT_TRIGGER)
+        ? "instant"
+        : "normal";
+    // clean content to remove client id and mode trigger
+    if (typeof modelMessage.content === "string") {
+        modelMessage.content = replacePromptMessage(
+            message,
+            modelMessage.content,
+        );
+    } else if (Array.isArray(modelMessage.content)) {
+        modelMessage.content = modelMessage.content.map((part) => {
+            if (part.type === "text") {
+                return {
+                    ...part,
+                    text: replacePromptMessage(message, part.text),
+                };
+            } else if (part.type === "image") {
+                return part;
+            } else {
+                throw new Error("Unexpected part type that should not happen");
+            }
+        });
+    }
+    return { message: modelMessage, mode };
+}
+
 export async function streamingReponse(
     message: Message,
     systemPrompt: string,
@@ -134,16 +183,19 @@ export async function streamingReponse(
             }
             messages.push(messageToModelMessage(entry));
         }
-        messages.push(messageToModelMessage(promptMessage));
+        const { message: promptModelMessage, mode } =
+            promptToModelMessageAndMode(promptMessage);
+        messages.push(promptModelMessage);
         const result = streamText({
-            model: "openai/gpt-5.4-mini",
+            model: mode === "instant" ? openaiInstantModel : openaiModel,
             system: `${basicPrompt}\n\n<system>${systemPrompt}</system>`,
             messages,
             tools: {
                 web_search: openai.tools.webSearch(),
             },
             providerOptions: {
-                openai: openaiOptions,
+                openai:
+                    mode === "instant" ? openaiInstantOptions : openaiOptions,
             },
             onFinish: async ({ text, sources, totalUsage }) => {
                 const sourceTexts = [];
