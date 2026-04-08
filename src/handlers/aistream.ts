@@ -190,9 +190,9 @@ export async function streamingReponse(
             model: mode === "instant" ? openaiInstantModel : openaiModel,
             system: `${basicPrompt}\n\n<system>${systemPrompt}</system>`,
             messages,
-            tools: {
-                web_search: openai.tools.webSearch(),
-            },
+            //tools: {
+            //    web_search: openai.tools.webSearch(),
+            //},
             providerOptions: {
                 openai:
                     mode === "instant" ? openaiInstantOptions : openaiOptions,
